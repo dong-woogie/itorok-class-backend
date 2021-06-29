@@ -8,6 +8,8 @@ import { SocialModule } from './social/social.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import * as Joi from 'joi';
+import { UserProfile } from './users/entities/user-profile.entity';
+import { SocialAccount } from './users/entities/social-account.entity';
 @Module({
   imports: [
     GraphQLModule.forRoot({
@@ -35,7 +37,7 @@ import * as Joi from 'joi';
       host: process.env.DB_HOST,
       database: process.env.DB_NAME,
       port: +process.env.DB_PORT,
-      entities: [User],
+      entities: [User, UserProfile, SocialAccount],
       synchronize: true,
       logging: true,
     }),
