@@ -11,9 +11,11 @@ export class CoreEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field((type) => Date)
   @CreateDateColumn()
   createdAt: Date;
 
+  @Field((type) => Date)
   @UpdateDateColumn()
   updatedAt: Date;
 }
