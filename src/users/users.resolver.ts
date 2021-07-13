@@ -1,6 +1,5 @@
-import { Query } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { LoginWithSocialInput, LoginWithSocialOutput } from './dtos/login.dto';
+import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
+import { CoreOutput } from 'src/common/dtos/output.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -8,8 +7,8 @@ import { UsersService } from './users.service';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation((type) => LoginWithSocialOutput)
-  loginWithSocial(@Args('input') loginWithSocialInput: LoginWithSocialInput) {
-    return this.usersService.loginWithSocial(loginWithSocialInput);
+  @Query((returns) => CoreOutput)
+  findUser() {
+    return this.usersService.findAllUser();
   }
 }
