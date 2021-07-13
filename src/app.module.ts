@@ -2,23 +2,23 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ItorokModule } from './itorok/itorok.module';
-import { OauthsModule } from './oauths/oauths.module';
 import { SocialModule } from './social/social.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import * as Joi from 'joi';
 import { UserProfile } from './users/entities/user-profile.entity';
 import { SocialAccount } from './users/entities/social-account.entity';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context: ({ req, res }) => ({ req, res }),
+      cors: false,
     }),
     SocialModule,
-    OauthsModule,
-    ItorokModule,
     UsersModule,
+    AuthModule,
     ConfigModule.forRoot({
       envFilePath: '.development.env',
       isGlobal: true,
@@ -30,6 +30,7 @@ import { SocialAccount } from './users/entities/social-account.entity';
         DB_USERNAME: Joi.string(),
         DB_PASSWORD: Joi.string(),
         DB_PORT: Joi.string(),
+        SECRET_KEY: Joi.string(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -40,6 +41,7 @@ import { SocialAccount } from './users/entities/social-account.entity';
       entities: [User, UserProfile, SocialAccount],
       synchronize: true,
       logging: true,
+      keepConnectionAlive: true,
     }),
   ],
   controllers: [],
