@@ -1,13 +1,11 @@
-import { Field, registerEnumType } from '@nestjs/graphql';
-import { CoreEntity } from 'src/common/entities/core.entity';
 import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
+  Field,
+  InputType,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
+import { CoreEntity } from 'src/common/entities/core.entity';
+import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 
 export enum SocialProvider {
@@ -21,6 +19,8 @@ registerEnumType(SocialProvider, {
 });
 
 @Index(['socialId', 'provider'])
+@ObjectType()
+@InputType('SocialAccountInputType', { isAbstract: true })
 @Entity()
 export class SocialAccount extends CoreEntity {
   @Field((type) => SocialProvider)

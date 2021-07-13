@@ -1,8 +1,10 @@
-import { Field } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 
+@InputType('UserProfileInputType', { isAbstract: true })
+@ObjectType()
 @Entity()
 export class UserProfile extends CoreEntity {
   @Field((type) => String)
@@ -17,6 +19,7 @@ export class UserProfile extends CoreEntity {
   @Column()
   displayName: string;
 
-  @OneToOne((type) => User, { onDelete: 'CASCADE' })
+  @OneToOne((type) => User, (user) => user.profile, { onDelete: 'CASCADE' })
+  @JoinColumn()
   user: User;
 }
