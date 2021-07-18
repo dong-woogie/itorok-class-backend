@@ -1,6 +1,7 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { AuthToken } from './auth-token.entity';
 import { UserProfile } from './user-profile.entity';
 
 export enum UserRole {
@@ -25,6 +26,9 @@ export class User extends CoreEntity {
 
   @Field((type) => UserProfile)
   @OneToOne((type) => UserProfile, (profile) => profile.user)
-  @JoinColumn()
   profile: UserProfile;
+
+  @Field((type) => AuthToken)
+  @OneToOne((type) => AuthToken, (token) => token.user)
+  token: AuthToken;
 }
