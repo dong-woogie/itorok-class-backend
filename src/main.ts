@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { REDIRECT_URI } from './common/constants';
 
@@ -8,6 +9,7 @@ async function bootstrap() {
     origin: process.env[REDIRECT_URI],
     credentials: true,
   });
+  app.use(cookieParser());
   await app.listen(4000);
 }
 bootstrap();
