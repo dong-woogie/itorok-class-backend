@@ -9,11 +9,15 @@ import * as Joi from 'joi';
 import { UserProfile } from './users/entities/user-profile.entity';
 import { SocialAccount } from './users/entities/social-account.entity';
 import { AuthModule } from './auth/auth.module';
+import { AuthToken } from './users/entities/auth-token.entity';
+
 @Module({
   imports: [
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      context: ({ req, res }) => ({ req, res }),
+      context: (ctx) => {
+        return { cookies: ctx.req.cookies, res: ctx.res };
+      },
       cors: false,
     }),
     SocialModule,
@@ -38,7 +42,7 @@ import { AuthModule } from './auth/auth.module';
       host: process.env.DB_HOST,
       database: process.env.DB_NAME,
       port: +process.env.DB_PORT,
-      entities: [User, UserProfile, SocialAccount],
+      entities: [User, UserProfile, SocialAccount, AuthToken],
       synchronize: true,
       logging: true,
       keepConnectionAlive: true,
