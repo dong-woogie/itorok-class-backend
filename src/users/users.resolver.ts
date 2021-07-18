@@ -5,6 +5,10 @@ import { GetCookies } from 'src/auth/get-cookies.decorator';
 import { GqlResponse } from 'src/auth/gql-response.decorator';
 import { CoreOutput } from 'src/common/dtos/output.dto';
 import { GetSocialProfileOutput } from './dtos/get-social-profile.dto';
+import {
+  LoginWithSocialInput,
+  LoginWithSocialOutput,
+} from './dtos/login-with-social.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -15,6 +19,14 @@ export class UsersResolver {
   @Query((returns) => GetSocialProfileOutput)
   getSocialProfile(@GetCookies() cookies) {
     return this.usersService.getSocialProfile(cookies);
+  }
+
+  @Mutation((returns) => LoginWithSocialOutput)
+  loginWithSocial(
+    @GqlResponse() res: Response,
+    @Args('input') loginWithsocialInput: LoginWithSocialInput,
+  ) {
+    return this.usersService.loginWithSocial(res, loginWithsocialInput);
   }
 
   }

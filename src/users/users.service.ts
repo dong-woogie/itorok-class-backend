@@ -26,8 +26,43 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
 
+  async loginWithSocial(res: Response, { code, state }: LoginWithSocialInput) {
+    const { access_token } = await this.authService.getSocialToken(code);
+    const socialProfile = await this.authService.getSocialProfile(
+      access_token,
+      state,
+    );
 
-    console.log(users);
+    const exist = await this.socialAccounts.findOne(
+      {
+        socialId: socialProfile.socialId,
+        provider: state,
+      },
+      {
+        relations: ['user'],
+      },
+    );
+
+    // when account is not created
+    if (!exist) {
+      res.cookie(
+        REGISTER_TOKEN,
+        await this.authService.generateToken(socialProfile),
+        {
+          maxAge: 1000 * 60 * 30,
+          httpOnly: true,
+        },
+      );
+      return {
+        ok: false,
+        error: ErrorMessage.NOT_REGISTER,
+      };
+    }
+
+    // correct login
+    // set access_token and refresh_token
+    const tokens = await this.authService.generateUserToken(exist.user);
+    this.authService.setCookies(res, tokens);
     return { ok: true };
   }
   async getSocialProfile(cookies): Promise<GetSocialProfileOutput> {
