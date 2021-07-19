@@ -1,15 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { Request } from 'express';
+import { Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { KAKAO_API_URI, SECRET_KEY } from 'src/common/constants';
+import {
+  ACCESS_TOKEN,
+  KAKAO_API_URI,
+  REFRESH_TOKEN,
+  SECRET_KEY,
+} from 'src/common/constants';
 import { SocialProvider } from 'src/users/entities/social-account.entity';
 import * as qs from 'querystring';
+import { AuthToken } from 'src/users/entities/auth-token.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectRepository(AuthToken)
+    private readonly authTokens: Repository<AuthToken>,
+  ) {}
 
   generateToken(payload: any, options?: jwt.SignOptions): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -62,24 +75,75 @@ export class AuthService {
     });
 
     return {
-      socialId: data.id.toString(),
-      displayName: data.properties.nickname,
-      thumbnail: data.properties.thumbnail_image,
+      socialId: data.id.toString() as string,
+      displayName: data.properties.nickname as string,
+      thumbnail: data.properties.thumbnail_image as string,
       provider,
     };
   }
 
-  getCookieValue(req: Request, cookieName: string): string {
-    const cookies = qs.parse(req.headers.cookie);
-    return cookies[cookieName] as string;
-  }
-
-  decodedToken(token: string): Promise<any> {
+  decodedToken<T>(token: string): Promise<any> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.configService.get(SECRET_KEY), (err, decoded) => {
         if (err) reject(err);
         resolve(decoded);
       });
     });
+  }
+
+  setCookies(
+    res: Response,
+    {
+      accessToken,
+      refreshToken,
+    }: {
+      accessToken: string;
+      refreshToken: string;
+    },
+  ) {
+    res.cookie(ACCESS_TOKEN, accessToken, {
+      httpOnly: true,
+      // 1h
+      maxAge: 1000 * 60 * 60,
+    });
+
+    res.cookie(REFRESH_TOKEN, refreshToken, {
+      httpOnly: true,
+      // 30d
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+    });
+  }
+
+  async generateUserToken(user: User) {
+    let authToken = await this.authTokens.findOne({
+      user,
+    });
+    if (authToken) {
+      await this.authTokens.remove(authToken);
+    }
+
+    authToken = new AuthToken();
+    authToken.user = user;
+    await this.authTokens.save(authToken);
+
+    const accessToken = await this.generateToken(
+      { userId: user.id },
+      { expiresIn: '1h' },
+    );
+
+    const refreshToken = await this.generateToken(
+      {
+        userId: user.id,
+        tokenId: authToken.id,
+      },
+      {
+        expiresIn: '30d',
+      },
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
