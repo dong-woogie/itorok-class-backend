@@ -1,18 +1,20 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dtos/output.dto';
-import { SocialProvider } from '../entities/social-account.entity';
 
 @InputType()
-export class LoginWithSocialInput {
+export class RegisterWithSocialInput {
   @Field((type) => String)
-  code: string;
+  username: string;
 
-  @Field((type) => SocialProvider)
-  state: SocialProvider;
+  @Field((type) => String)
+  displayName: string;
+
+  @Field((type) => String, { nullable: true })
+  shortBio?: string;
 }
 
 @ObjectType()
-export class LoginWithSocialOutput extends CoreOutput {
+export class RegisterWithSocialOutput extends CoreOutput {
   @Field((type) => String, { nullable: true })
   accessToken?: string;
 }
