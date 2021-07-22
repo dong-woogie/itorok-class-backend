@@ -2,15 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
-import { REGISTER_TOKEN } from 'src/common/constants';
+import { ONE_DAY, REFRESH_TOKEN, REGISTER_TOKEN } from 'src/common/constants';
 import { ErrorMessage } from 'src/common/dtos/output.dto';
 import { Repository } from 'typeorm';
 import {
   GetSocialProfileOutput,
   SocialProfile,
 } from './dtos/get-social-profile.dto';
-import { LoginWithSocialInput } from './dtos/login-with-social.dto';
-import { RegisterWithSocialInput } from './dtos/register-with-social.dto';
+import {
+  LoginWithSocialInput,
+  LoginWithSocialOutput,
+} from './dtos/login-with-social.dto';
+import {
+  RegisterWithSocialInput,
+  RegisterWithSocialOutput,
+} from './dtos/register-with-social.dto';
 import { SocialAccount } from './entities/social-account.entity';
 import { UserProfile } from './entities/user-profile.entity';
 import { User, UserRole } from './entities/user.entity';
@@ -26,7 +32,10 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
 
-  async loginWithSocial(res: Response, { code, state }: LoginWithSocialInput) {
+  async loginWithSocial(
+    res: Response,
+    { code, state }: LoginWithSocialInput,
+  ): Promise<LoginWithSocialOutput> {
     const { access_token } = await this.authService.getSocialToken(code);
     const socialProfile = await this.authService.getSocialProfile(
       access_token,
@@ -60,19 +69,72 @@ export class UsersService {
     }
 
     // correct login
-    // set access_token and refresh_token
+    // set cookie refresh_token, response access_token
     const tokens = await this.authService.generateUserToken(exist.user);
-    this.authService.setCookies(res, tokens);
-    return { ok: true };
+    res.cookie(REFRESH_TOKEN, tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      // 30d
+      maxAge: ONE_DAY * 30,
+    });
+    return { ok: true, accessToken: tokens.accessToken };
   }
+
+  async registerWithSocial(
+    res: Response,
+    cookies,
+    { shortBio, displayName, username }: RegisterWithSocialInput,
+  ): Promise<RegisterWithSocialOutput> {
+    try {
+      const token = cookies[REGISTER_TOKEN];
+      if (!token) throw new Error(ErrorMessage.NOT_FOUND_REGISTER_TOKEN);
+
+      const decoded = await this.authService.decodedToken(token);
+
+      const user = new User();
+      const profile = new UserProfile();
+      const socialAccount = new SocialAccount();
+
+      user.username = username;
+      user.role = UserRole.client;
+      await this.users.save(user);
+
+      profile.displayName = displayName;
+      profile.shortBio = shortBio;
+      profile.thumbnail = decoded.thumbnail;
+      profile.user = user;
+      await this.profiles.save(profile);
+
+      socialAccount.provider = decoded.provider;
+      socialAccount.socialId = decoded.socialId;
+      socialAccount.user = user;
+      await this.socialAccounts.save(socialAccount);
+
+      // correct register
+      res.clearCookie(REGISTER_TOKEN);
+      const tokens = await this.authService.generateUserToken(user);
+      res.cookie(REFRESH_TOKEN, tokens.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        // 30d
+        maxAge: ONE_DAY * 30,
+      });
+
+      return { ok: true, accessToken: tokens.accessToken };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e?.message,
+      };
+    }
+  }
+
   async getSocialProfile(cookies): Promise<GetSocialProfileOutput> {
     try {
       const token = cookies[REGISTER_TOKEN];
       if (!token) throw new Error(ErrorMessage.NOT_FOUND_REGISTER_TOKEN);
 
-      const profile = (await this.authService.decodedToken<SocialProfile>(
-        token,
-      )) as SocialProfile;
+      const profile = await this.authService.decodedToken<SocialProfile>(token);
       return {
         ok: true,
         profile,

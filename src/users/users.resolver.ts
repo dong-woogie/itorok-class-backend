@@ -9,6 +9,10 @@ import {
   LoginWithSocialInput,
   LoginWithSocialOutput,
 } from './dtos/login-with-social.dto';
+import {
+  RegisterWithSocialInput,
+  RegisterWithSocialOutput,
+} from './dtos/register-with-social.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -27,6 +31,19 @@ export class UsersResolver {
     @Args('input') loginWithsocialInput: LoginWithSocialInput,
   ) {
     return this.usersService.loginWithSocial(res, loginWithsocialInput);
+  }
+
+  @Mutation((returns) => RegisterWithSocialOutput)
+  registerWithSocial(
+    @GqlResponse() res: Response,
+    @GetCookies() cookies,
+    @Args('input') registerWithSocialInput: RegisterWithSocialInput,
+  ) {
+    return this.usersService.registerWithSocial(
+      res,
+      cookies,
+      registerWithSocialInput,
+    );
   }
 
   }
