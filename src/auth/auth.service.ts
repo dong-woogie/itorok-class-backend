@@ -6,6 +6,8 @@ import * as jwt from 'jsonwebtoken';
 import {
   ACCESS_TOKEN,
   KAKAO_API_URI,
+  ONE_DAY,
+  ONE_HOUR,
   REFRESH_TOKEN,
   SECRET_KEY,
 } from 'src/common/constants';
@@ -82,11 +84,11 @@ export class AuthService {
     };
   }
 
-  decodedToken<T>(token: string): Promise<any> {
+  decodedToken<T = any>(token: string): Promise<T> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.configService.get(SECRET_KEY), (err, decoded) => {
         if (err) reject(err);
-        resolve(decoded);
+        resolve(decoded as any);
       });
     });
   }
@@ -104,13 +106,13 @@ export class AuthService {
     res.cookie(ACCESS_TOKEN, accessToken, {
       httpOnly: true,
       // 1h
-      maxAge: 1000 * 60 * 60,
+      maxAge: ONE_HOUR,
     });
 
     res.cookie(REFRESH_TOKEN, refreshToken, {
       httpOnly: true,
       // 30d
-      maxAge: 1000 * 60 * 60 * 24 * 30,
+      maxAge: ONE_DAY * 30,
     });
   }
 
