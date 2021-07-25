@@ -10,6 +10,8 @@ import { SocialAccount } from './users/entities/social-account.entity';
 import { AuthModule } from './auth/auth.module';
 import { AuthToken } from './users/entities/auth-token.entity';
 import { Apimodule } from './api/api.module';
+import { Category } from './categories/entities/catrgory.entity';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { Apimodule } from './api/api.module';
     UsersModule,
     AuthModule,
     Apimodule,
+    CategoriesModule,
     ConfigModule.forRoot({
       envFilePath: '.development.env',
       isGlobal: true,
@@ -50,7 +53,7 @@ import { Apimodule } from './api/api.module';
       host: process.env.DB_HOST,
       database: process.env.DB_NAME,
       port: +process.env.DB_PORT,
-      entities: [User, UserProfile, SocialAccount, AuthToken],
+      entities: [User, UserProfile, SocialAccount, AuthToken, Category],
       synchronize: true,
       logging: true,
       keepConnectionAlive: true,
