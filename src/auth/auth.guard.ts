@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
     const roles = this.reflector.get<RoleType>('roles', context.getHandler());
     if (!roles) return true;
 
-    const accessToken = gqlContext?.accessToken || '';
+    const accessToken = gqlContext?.access_token || '';
     const refreshToken = gqlContext.cookies?.refresh_token || '';
 
     if (!accessToken) {
