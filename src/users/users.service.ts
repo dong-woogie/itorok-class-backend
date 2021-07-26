@@ -17,6 +17,7 @@ import {
   RegisterWithSocialInput,
   RegisterWithSocialOutput,
 } from './dtos/register-with-social.dto';
+import { AuthToken } from './entities/auth-token.entity';
 import { SocialAccount } from './entities/social-account.entity';
 import { UserProfile } from './entities/user-profile.entity';
 import { User, UserRole } from './entities/user.entity';
@@ -30,6 +31,8 @@ export class UsersService {
     @InjectRepository(UserProfile)
     private readonly profiles: Repository<UserProfile>,
     private readonly authService: AuthService,
+    @InjectRepository(AuthToken)
+    private readonly authTokens: Repository<AuthToken>,
   ) {}
 
   async loginWithSocial(
@@ -145,5 +148,26 @@ export class UsersService {
         error: e?.message,
       };
     }
+  }
+
+  async getUserOnLoad(userId: string) {
+    const user = await this.users.findOne(userId, {
+      relations: ['profile'],
+    });
+
+    return user;
+  }
+
+  async logout(user: User, res: Response) {
+    const token = await this.authTokens.findOne({
+      where: {
+        user,
+      },
+    });
+
+    await this.authTokens.remove([token]);
+
+    res.clearCookie(REFRESH_TOKEN);
+    return true;
   }
 }
