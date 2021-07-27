@@ -1,5 +1,6 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dtos/output.dto';
+import { User } from '../entities/user.entity';
 
 @InputType()
 export class RegisterWithSocialInput {
@@ -17,4 +18,7 @@ export class RegisterWithSocialInput {
 export class RegisterWithSocialOutput extends CoreOutput {
   @Field((type) => String, { nullable: true })
   accessToken?: string;
+
+  @Field((type) => User, { nullable: true })
+  user?: User;
 }

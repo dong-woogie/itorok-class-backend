@@ -73,14 +73,18 @@ export class UsersService {
 
     // correct login
     // set cookie refresh_token, response access_token
-    const tokens = await this.authService.generateUserToken(exist.user);
+
+    const user = await this.users.findOne(exist.user.id, {
+      relations: ['profile'],
+    });
+    const tokens = await this.authService.generateUserToken(user);
     res.cookie(REFRESH_TOKEN, tokens.refreshToken, {
       httpOnly: true,
       secure: true,
       // 30d
       maxAge: ONE_DAY * 30,
     });
-    return { ok: true, accessToken: tokens.accessToken };
+    return { ok: true, accessToken: tokens.accessToken, user };
   }
 
   async registerWithSocial(
@@ -116,6 +120,10 @@ export class UsersService {
       // correct register
       res.clearCookie(REGISTER_TOKEN);
       const tokens = await this.authService.generateUserToken(user);
+
+      console.log(user);
+      console.log(profile);
+
       res.cookie(REFRESH_TOKEN, tokens.refreshToken, {
         httpOnly: true,
         secure: true,
@@ -123,7 +131,11 @@ export class UsersService {
         maxAge: ONE_DAY * 30,
       });
 
-      return { ok: true, accessToken: tokens.accessToken };
+      return {
+        ok: true,
+        accessToken: tokens.accessToken,
+        user: { ...user, profile },
+      };
     } catch (e) {
       return {
         ok: false,
