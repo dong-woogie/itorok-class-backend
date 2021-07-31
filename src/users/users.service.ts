@@ -37,23 +37,23 @@ export class UsersService {
 
   async loginWithSocial(
     res: Response,
-    { code, state }: LoginWithSocialInput,
+    { code, provider, role }: LoginWithSocialInput,
   ): Promise<LoginWithSocialOutput> {
     const { access_token } = await this.authService.getSocialToken(code);
     const socialProfile = await this.authService.getSocialProfile(
       access_token,
-      state,
+      provider,
     );
 
-    const exist = await this.socialAccounts.findOne(
-      {
+    const exist = await this.socialAccounts
+      .createQueryBuilder('socialAccount')
+      .where('socialAccount.socialId = :socialId', {
         socialId: socialProfile.socialId,
-        provider: state,
-      },
-      {
-        relations: ['user'],
-      },
-    );
+      })
+      .andWhere('socialAccount.provider = :provider', { provider })
+      .innerJoinAndSelect('socialAccount.user', 'user')
+      .andWhere('user.role = :role', { role })
+      .getOne();
 
     // when account is not created
     if (!exist) {
@@ -65,9 +65,15 @@ export class UsersService {
           httpOnly: true,
         },
       );
+      if (role === UserRole.mentor) {
+        return {
+          ok: false,
+          error: ErrorMessage.NOT_REGISTER_MENTOR,
+        };
+      }
       return {
         ok: false,
-        error: ErrorMessage.NOT_REGISTER,
+        error: ErrorMessage.NOT_REGISTER_CLIENT,
       };
     }
 
@@ -120,9 +126,6 @@ export class UsersService {
       // correct register
       res.clearCookie(REGISTER_TOKEN);
       const tokens = await this.authService.generateUserToken(user);
-
-      console.log(user);
-      console.log(profile);
 
       res.cookie(REFRESH_TOKEN, tokens.refreshToken, {
         httpOnly: true,
