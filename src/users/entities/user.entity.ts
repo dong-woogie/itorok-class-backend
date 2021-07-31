@@ -6,7 +6,7 @@ import { UserProfile } from './user-profile.entity';
 
 export enum UserRole {
   client = 'client',
-  author = 'author',
+  mentor = 'mentor',
   manager = 'manager',
   admin = 'admin',
 }
