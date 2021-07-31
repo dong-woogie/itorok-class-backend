@@ -46,6 +46,11 @@ import { CategoriesModule } from './categories/categories.module';
         DB_PASSWORD: Joi.string(),
         DB_PORT: Joi.string(),
         SECRET_KEY: Joi.string(),
+        NAVER_API_SERVICE_ID: Joi.string(),
+        NAVER_API_ACCESS_KEY: Joi.string(),
+        NAVER_API_SECRET_KEY: Joi.string(),
+        NAVER_API_SEVICE_SECRET_KEY: Joi.string(),
+        NAVER_MESSAGE_API_URL: Joi.string(),
       }),
     }),
     TypeOrmModule.forRoot({
