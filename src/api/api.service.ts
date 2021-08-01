@@ -128,4 +128,26 @@ export class ApiService {
       res.json({ ok: false });
     }
   }
+
+  async verifyCode(
+    req: Request,
+    res: Response,
+    { code, phoneNumber }: VerifyCodeInput,
+  ) {
+    try {
+      const value = await this.cacheManager.get(phoneNumber);
+
+      if (!value) throw new Error(ErrorMessage.PLEASE_TRY_AGAIN);
+      if (value !== code) throw new Error(ErrorMessage.PLEASE_TRY_AGAIN);
+
+      await this.cacheManager.del(phoneNumber);
+
+      res.json({ ok: true });
+    } catch (e) {
+      res.json({
+        ok: false,
+        error: e?.message || ErrorMessage.PLEASE_TRY_AGAIN,
+      });
+    }
+  }
 }

@@ -35,4 +35,14 @@ export class ApiController {
     @Body() body: SendCodeInput,
   ) {
     this.apiService.sendVerificationCode(req, res, body);
+  }
+
+  @Post('verify-code')
+  verifyCode(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: VerifyCodeInput,
+  ) {
+    this.apiService.verifyCode(req, res, body);
+  }
 }
