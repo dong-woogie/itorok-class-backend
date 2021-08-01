@@ -51,6 +51,7 @@ import { CategoriesModule } from './categories/categories.module';
         NAVER_API_SECRET_KEY: Joi.string(),
         NAVER_API_SEVICE_SECRET_KEY: Joi.string(),
         NAVER_MESSAGE_API_URL: Joi.string(),
+        CALLER_NUMBER: Joi.string(),
       }),
     }),
     TypeOrmModule.forRoot({
