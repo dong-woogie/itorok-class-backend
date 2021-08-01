@@ -1,9 +1,10 @@
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { REDIRECT_URI } from 'src/common/constants';
-import { SocialProvider } from 'src/users/entities/social-account.entity';
+import { UserRole } from 'src/users/entities/user.entity';
 import { ApiService } from './api.service';
+import { SendCodeInput, VerifyCodeInput } from './dtos/api.dto';
 
 @Controller('api')
 export class ApiController {
@@ -19,11 +20,19 @@ export class ApiController {
   @Get('social/callback')
   socialCallback(
     @Res() res: Response,
-    @Query() { code, state }: { code: string; state: SocialProvider },
+    @Query() query: { code: string; state: UserRole },
   ) {
     res.redirect(
       this.configService.get(REDIRECT_URI) +
-        `/social/login?code=${code}&state=${state}`,
+        `/social/login?code=${query.code}&role=${query.state}&provider=kakao`,
     );
   }
+
+  @Post('send-code')
+  sendVerificationCode(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: SendCodeInput,
+  ) {
+    this.apiService.sendVerificationCode(req, res, body);
 }
