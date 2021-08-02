@@ -1,14 +1,29 @@
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType, PickType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dtos/output.dto';
-import { User } from '../entities/user.entity';
+import { Gender, User, UserRole } from '../entities/user.entity';
 
 @InputType()
 export class RegisterWithSocialInput {
   @Field((type) => String)
-  username: string;
+  displayName: string;
 
   @Field((type) => String)
-  displayName: string;
+  username: string;
+
+  @Field((type) => UserRole)
+  role: UserRole;
+
+  @Field((type) => String, { nullable: true })
+  address?: string;
+
+  @Field((type) => String, { nullable: true })
+  detailAddress?: string;
+
+  @Field((type) => Gender, { nullable: true })
+  gender?: Gender;
+
+  @Field((type) => String, { nullable: true })
+  phoneNumber?: string;
 
   @Field((type) => String, { nullable: true })
   shortBio?: string;

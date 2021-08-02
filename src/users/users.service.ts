@@ -96,12 +96,23 @@ export class UsersService {
   async registerWithSocial(
     res: Response,
     cookies,
-    { shortBio, displayName, username }: RegisterWithSocialInput,
+    registerWithSocialInput: RegisterWithSocialInput,
   ): Promise<RegisterWithSocialOutput> {
     try {
       const token = cookies[REGISTER_TOKEN];
+
       if (!token) throw new Error(ErrorMessage.NOT_FOUND_REGISTER_TOKEN);
 
+      const {
+        shortBio,
+        displayName,
+        username,
+        phoneNumber,
+        role,
+        address,
+        detailAddress,
+        gender,
+      } = registerWithSocialInput;
       const decoded = await this.authService.decodedToken(token);
 
       const user = new User();
@@ -109,7 +120,11 @@ export class UsersService {
       const socialAccount = new SocialAccount();
 
       user.username = username;
-      user.role = UserRole.client;
+      user.role = role;
+      user.phoneNumber = phoneNumber;
+      user.address = address;
+      user.detailAddress = detailAddress;
+      user.gender = gender;
       await this.users.save(user);
 
       profile.displayName = displayName;

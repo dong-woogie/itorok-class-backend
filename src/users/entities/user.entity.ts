@@ -1,4 +1,9 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import {
+  Field,
+  InputType,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Column, Entity, OneToOne } from 'typeorm';
 import { AuthToken } from './auth-token.entity';
@@ -25,6 +30,7 @@ registerEnumType(Gender, {
 });
 
 @ObjectType()
+@InputType('UserInputType', { isAbstract: true })
 @Entity()
 export class User extends CoreEntity {
   @Field((type) => UserRole)
@@ -38,6 +44,18 @@ export class User extends CoreEntity {
   @Field((type) => Gender, { nullable: true })
   @Column({ type: 'enum', enum: Gender, nullable: true })
   gender?: Gender;
+
+  @Field((type) => String, { nullable: true })
+  @Column({ nullable: true })
+  address?: string;
+
+  @Field((type) => String, { nullable: true })
+  @Column({ nullable: true })
+  detailAddress?: string;
+
+  @Field((type) => String, { nullable: true })
+  @Column({ nullable: true })
+  phoneNumber?: string;
 
   @Field((type) => UserProfile)
   @OneToOne((type) => UserProfile, (profile) => profile.user)
