@@ -9,6 +9,7 @@ export enum ErrorMessage {
   NOT_FOUND_ACCESS_TOKEN = 'NOT_FOUND_ACCESS_TOKEN',
   DO_LOGOUT = 'DO_LOGOUT',
   FORBIDDEN_RESOURCE = 'Forbidden resource',
+  PLEASE_TRY_AGAIN = 'PLEASE_TRY_AGAIN',
 }
 
 registerEnumType(ErrorMessage, {
