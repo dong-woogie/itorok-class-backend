@@ -4,6 +4,9 @@ import axios from 'axios';
 import { Response, Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import {
+  AWS_ACCESS_KEY,
+  AWS_SECRET_KEY,
+  BUCKET_NAME,
   CALLER_NUMBER,
   NAVER_API_ACCESS_KEY,
   NAVER_API_SECRET_KEY,
@@ -16,6 +19,8 @@ import { RefreshTokenType } from 'src/users/entities/auth-token.entity';
 import * as crypto from 'crypto';
 import { SendCodeInput, VerifyCodeInput } from './dtos/api.dto';
 import { Cache } from 'cache-manager';
+import * as AWS from 'aws-sdk';
+
 @Injectable()
 export class ApiService {
   constructor(
@@ -148,6 +153,41 @@ export class ApiService {
         ok: false,
         error: e?.message || ErrorMessage.PLEASE_TRY_AGAIN,
       });
+    }
+  }
+
+  async uploads(res: Response, files: Array<Express.Multer.File>) {
+    try {
+      const bucketName = this.configService.get(BUCKET_NAME);
+
+      AWS.config.update({
+        credentials: {
+          accessKeyId: this.configService.get(AWS_ACCESS_KEY),
+          secretAccessKey: this.configService.get(AWS_SECRET_KEY),
+        },
+      });
+      const s3 = new AWS.S3({ region: 'ap-northeast-2' });
+
+      const images = await Promise.all(
+        files.map(async (file) => {
+          const objectname = `original/${+new Date()}_${file.originalname}`;
+          await s3
+            .putObject({
+              Body: file.buffer,
+              ACL: 'public-read',
+              Bucket: bucketName,
+              Key: objectname,
+            })
+            .promise();
+
+          const url = `https://${bucketName}.s3.ap-northeast-2.amazonaws.com/${objectname}`;
+          return url;
+        }),
+      );
+
+      res.json({ ok: true, images });
+    } catch {
+      res.json({ ok: false, images: [] });
     }
   }
 }

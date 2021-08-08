@@ -1,10 +1,22 @@
-import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { REDIRECT_URI } from 'src/common/constants';
 import { UserRole } from 'src/users/entities/user.entity';
 import { ApiService } from './api.service';
 import { SendCodeInput, VerifyCodeInput } from './dtos/api.dto';
+import * as AWS from 'aws-sdk';
 
 @Controller('api')
 export class ApiController {
@@ -44,5 +56,15 @@ export class ApiController {
     @Body() body: VerifyCodeInput,
   ) {
     this.apiService.verifyCode(req, res, body);
+  }
+
+  @Post('uploads')
+  @UseInterceptors(FilesInterceptor('files'))
+  uploads(
+    @Req() req: Request,
+    @Res() res: Response,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    this.apiService.uploads(res, files);
   }
 }
