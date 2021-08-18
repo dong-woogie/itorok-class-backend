@@ -156,21 +156,32 @@ export class ApiService {
     }
   }
 
+  getS3() {
+    AWS.config.update({
+      credentials: {
+        accessKeyId: this.configService.get(AWS_ACCESS_KEY),
+        secretAccessKey: this.configService.get(AWS_SECRET_KEY),
+      },
+    });
+
+    return new AWS.S3({ region: 'ap-northeast-2' });
+  }
+
+  getObjectName(filename: string) {
+    return `original/${+new Date()}_${filename}`;
+  }
+
+  getS3Url(bucketName: string, objectname: string) {
+    return `https://${bucketName}.s3.ap-northeast-2.amazonaws.com/${objectname}`;
+  }
+
   async uploads(res: Response, files: Array<Express.Multer.File>) {
     try {
       const bucketName = this.configService.get(BUCKET_NAME);
-
-      AWS.config.update({
-        credentials: {
-          accessKeyId: this.configService.get(AWS_ACCESS_KEY),
-          secretAccessKey: this.configService.get(AWS_SECRET_KEY),
-        },
-      });
-      const s3 = new AWS.S3({ region: 'ap-northeast-2' });
-
+      const s3 = this.getS3();
       const images = await Promise.all(
         files.map(async (file) => {
-          const objectname = `original/${+new Date()}_${file.originalname}`;
+          const objectname = this.getObjectName(file.originalname);
           await s3
             .putObject({
               Body: file.buffer,
@@ -180,7 +191,7 @@ export class ApiService {
             })
             .promise();
 
-          const url = `https://${bucketName}.s3.ap-northeast-2.amazonaws.com/${objectname}`;
+          const url = this.getS3Url(bucketName, objectname);
           return url;
         }),
       );
@@ -188,6 +199,28 @@ export class ApiService {
       res.json({ ok: true, images });
     } catch {
       res.json({ ok: false, images: [] });
+    }
+  }
+
+  async upload(res: Response, file: Express.Multer.File) {
+    try {
+      const bucketName = this.configService.get(BUCKET_NAME);
+      const s3 = this.getS3();
+
+      const objectname = this.getObjectName(file.originalname);
+      await s3
+        .putObject({
+          Body: file.buffer,
+          ACL: 'public-read',
+          Bucket: bucketName,
+          Key: objectname,
+        })
+        .promise();
+      const image = this.getS3Url(bucketName, objectname);
+
+      res.json({ ok: true, image });
+    } catch {
+      res.json({ ok: false });
     }
   }
 }

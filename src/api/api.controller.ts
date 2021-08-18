@@ -6,11 +6,12 @@ import {
   Query,
   Req,
   Res,
+  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { REDIRECT_URI } from 'src/common/constants';
 import { UserRole } from 'src/users/entities/user.entity';
@@ -66,5 +67,11 @@ export class ApiController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     this.apiService.uploads(res, files);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  upload(@Res() res: Response, @UploadedFile() file: Express.Multer.File) {
+    this.apiService.upload(res, file);
   }
 }
