@@ -15,6 +15,7 @@ import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { Roles } from 'src/auth/role.decorator';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { UpdateUserInput, UpdateUserOutput } from './dtos/update-user.dto';
 
 @Resolver((of) => User)
 export class UsersResolver {
@@ -56,5 +57,14 @@ export class UsersResolver {
   @Roles(['any'])
   logout(@AuthUser() user: User, @GqlResponse() res: Response) {
     return this.usersService.logout(user, res);
+  }
+
+  @Mutation((returns) => UpdateUserOutput)
+  @Roles(['any'])
+  updateUser(
+    @AuthUser() user: User,
+    @Args('input') updateUserInput: UpdateUserInput,
+  ) {
+    return this.usersService.updateUser(user.id, updateUserInput);
   }
 }

@@ -17,6 +17,7 @@ import {
   RegisterWithSocialInput,
   RegisterWithSocialOutput,
 } from './dtos/register-with-social.dto';
+import { UpdateUserInput } from './dtos/update-user.dto';
 import { AuthToken } from './entities/auth-token.entity';
 import { SocialAccount } from './entities/social-account.entity';
 import { UserProfile } from './entities/user-profile.entity';
@@ -199,5 +200,25 @@ export class UsersService {
 
     res.clearCookie(REFRESH_TOKEN);
     return true;
+  }
+
+  async updateUser(userId: string, updateUserInput: UpdateUserInput) {
+    try {
+      const user = await this.users.findOne(userId, {
+        relations: ['profile'],
+      });
+
+      user.address = updateUserInput.address;
+      user.detailAddress = updateUserInput.detailAddress;
+
+      const updateUser = await this.users.save({
+        ...user,
+        ...updateUserInput,
+      });
+
+      return { ok: true, user: updateUser };
+    } catch {
+      return { ok: false };
+    }
   }
 }
