@@ -18,28 +18,14 @@ import { Schedule } from './products/entities/schedule.entity';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot({
-      autoSchemaFile: true,
-      context: ({ req, res, connection }) => {
-        if (req) {
-          const accessToken = req.headers?.authorization?.substr(7) || '';
-          return { cookies: req.cookies, res: res, access_token: accessToken };
-        } else {
-          return {
-            access_token: connection.context?.authorization?.substr(7) || '',
-          };
-        }
-      },
-      installSubscriptionHandlers: true,
-      cors: false,
-    }),
     ConfigModule.forRoot({
-      envFilePath:
-        process.env.NODE_ENV === 'production'
-          ? '.production.env'
-          : '.development.env',
       isGlobal: true,
-      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      envFilePath:
+        process.env.NODE_ENV === 'development'
+          ? '.development.env'
+          : '.env.prod',
+
+      // ignoreEnvFile: process.env.NODE_ENV === 'production',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test'),
         DB_NAME: Joi.string(),
@@ -59,11 +45,28 @@ import { Schedule } from './products/entities/schedule.entity';
         BUCKET_NAME: Joi.string(),
       }),
     }),
+    GraphQLModule.forRoot({
+      autoSchemaFile: true,
+      context: ({ req, res, connection }) => {
+        if (req) {
+          const accessToken = req.headers?.authorization?.substr(7) || '';
+          return { cookies: req.cookies, res: res, access_token: accessToken };
+        } else {
+          return {
+            access_token: connection.context?.authorization?.substr(7) || '',
+          };
+        }
+      },
+      installSubscriptionHandlers: true,
+      cors: false,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
       database: process.env.DB_NAME,
       port: +process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
       entities: [
         User,
         UserProfile,
