@@ -34,13 +34,13 @@ on:
 env:
   AWS_REGION: ap-northeast-2 # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: itorok-backend # set this to your Amazon ECR repository name
-  ECS_SERVICE: MY_ECS_SERVICE # set this to your Amazon ECS service name
-  ECS_CLUSTER: MY_ECS_CLUSTER # set this to your Amazon ECS cluster name
+  ECS_SERVICE: itorok-service # set this to your Amazon ECS service name
+  ECS_CLUSTER: itorok-cluster # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION:
-    MY_ECS_TASK_DEFINITION # set this to the path to your Amazon ECS task definition
+    task-definition.json # set this to the path to your Amazon ECS task definition
     # file, e.g. .aws/task-definition.json
   CONTAINER_NAME:
-    MY_CONTAINER_NAME # set this to the name of the container in the
+    itorok-backend-container # set this to the name of the container in the
     # containerDefinitions section of your task definition
 
 jobs:
@@ -67,27 +67,48 @@ jobs:
       - name: Create env file
         run: |
           echo "NODE_ENV=$NODE_ENV" >> .env
-        env: NODE_ENV=production
-          PORT=4000
-          DB_NAME=${{ secrets.DB_NAME }}
-          DB_HOST=${{ secrets.DB_HOST }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          DB_PORT=5432
-          KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
-          KAKAO_REDIRECT_URI=http://localhost:4000/api/social/callback
-          SECRET_KEY=${{ secrets.SECRET_KEY }}
-          REDIRECT_URI=http://localhost:3000
-          KAKAO_API_URI=https://kapi.kakao.com
-          NAVER_API_SERVICE_ID=${{ secrets.NAVER_API_SERVICE_ID }}
-          NAVER_API_SEVICE_SECRET_KEY=${{ secrets.NAVER_API_SEVICE_SECRET_KEY }}
-          NAVER_API_ACCESS_KEY=${{ secrets.NAVER_API_ACCESS_KEY }}
-          NAVER_API_SECRET_KEY=${{ secrets.NAVER_API_SECRET_KEY }}
-          NAVER_MESSAGE_API_URL=https://sens.apigw.ntruss.com/sms/v2/services/ncp:sms:kr:270315683300:itorok-class/messages
-          CALLER_NUMBER=${{ secrets.CALLER_NUMBER }}
-          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-          BUCKET_NAME=itorok-class-bucket
+          echo "PORT=$PORT" >> .env
+          echo "DB_NAME=$DB_NAME" >> .env
+          echo "DB_HOST=$DB_HOST" >> .env
+          echo "DB_USERNAME=$DB_USERNAME" >> .env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "DB_PORT=$DB_PORT" >> .env
+          echo "KAKAO_CLIENT_ID=$KAKAO_CLIENT_ID" >> .env
+          echo "KAKAO_REDIRECT_URI=$KAKAO_REDIRECT_URI" >> .env
+          echo "SECRET_KEY=$SECRET_KEY" >> .env
+          echo "REDIRECT_URI=$REDIRECT_URI" >> .env
+          echo "KAKAO_API_URI=$KAKAO_API_URI" >> .env
+          echo "NAVER_API_SERVICE_ID=$NAVER_API_SERVICE_ID" >> .env
+          echo "NAVER_API_SEVICE_SECRET_KEY=$NAVER_API_SEVICE_SECRET_KEY" >> .env
+          echo "NAVER_API_ACCESS_KEY=$NAVER_API_ACCESS_KEY" >> .env
+          echo "NAVER_API_SECRET_KEY=$NAVER_API_SECRET_KEY" >> .env
+          echo "NAVER_MESSAGE_API_URL=$NAVER_MESSAGE_API_URL" >> .env
+          echo "CALLER_NUMBER=$CALLER_NUMBER" >> .env
+          echo "AWS_ACCESS_KEY=$AWS_ACCESS_KEY" >> .env
+          echo "AWS_SECRET_KEY=$AWS_SECRET_KEY" >> .env
+          echo "BUCKET_NAME=$BUCKET_NAME" >> .env
+        env:
+          NODE_ENV: production
+          PORT: 4000
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: 5432
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_REDIRECT_URI: http://localhost:4000/api/social/callback
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          REDIRECT_URI: http://localhost:3000
+          KAKAO_API_URI: https://kapi.kakao.com
+          NAVER_API_SERVICE_ID: ${{ secrets.NAVER_API_SERVICE_ID }}
+          NAVER_API_SEVICE_SECRET_KEY: ${{ secrets.NAVER_API_SEVICE_SECRET_KEY }}
+          NAVER_API_ACCESS_KEY: ${{ secrets.NAVER_API_ACCESS_KEY }}
+          NAVER_API_SECRET_KEY: ${{ secrets.NAVER_API_SECRET_KEY }}
+          NAVER_MESSAGE_API_URL: https://sens.apigw.ntruss.com/sms/v2/services/ncp:sms:kr:270315683300:itorok-class/messages
+          CALLER_NUMBER: ${{ secrets.CALLER_NUMBER }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          BUCKET_NAME: itorok-class-bucket
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
