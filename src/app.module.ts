@@ -23,11 +23,7 @@ import { Schedule } from './products/entities/schedule.entity';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
-        process.env.NODE_ENV === 'development'
-          ? '.development.env'
-          : '.env.prod',
-
-      // ignoreEnvFile: process.env.NODE_ENV === 'production',
+        process.env.NODE_ENV === 'development' ? '.development.env' : '.env',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test'),
         PORT: Joi.string(),
