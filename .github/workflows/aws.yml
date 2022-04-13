@@ -89,12 +89,12 @@ jobs:
           echo "BUCKET_NAME=$BUCKET_NAME" >> .env
         env:
           NODE_ENV: production
-          PORT: 4000
+          PORT: '4000'
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_PORT: 5432
+          DB_PORT: '5432'
           KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
           KAKAO_REDIRECT_URI: http://localhost:4000/api/social/callback
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
