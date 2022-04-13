@@ -42,8 +42,9 @@
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.6.6",
+    "rxjs": "^7.5.5",
     "save-dev": "0.0.1-security",
+    "ts-morph": "^13.0.3",
     "typeorm": "^0.2.34"
   },
   "devDependencies": {
