@@ -1,3 +1,5 @@
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -28,16 +30,21 @@ import { Schedule } from './products/entities/schedule.entity';
       // ignoreEnvFile: process.env.NODE_ENV === 'production',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test'),
+        PORT: Joi.string(),
         DB_NAME: Joi.string(),
         DB_HOST: Joi.string(),
         DB_USERNAME: Joi.string(),
         DB_PASSWORD: Joi.string(),
         DB_PORT: Joi.string(),
+        KAKAO_CLIENT_ID: Joi.string(),
+        KAKAO_REDIRECT_URI: Joi.string(),
         SECRET_KEY: Joi.string(),
+        REDIRECT_URI: Joi.string(),
+        KAKAO_API_URI: Joi.string(),
         NAVER_API_SERVICE_ID: Joi.string(),
+        NAVER_API_SEVICE_SECRET_KEY: Joi.string(),
         NAVER_API_ACCESS_KEY: Joi.string(),
         NAVER_API_SECRET_KEY: Joi.string(),
-        NAVER_API_SEVICE_SECRET_KEY: Joi.string(),
         NAVER_MESSAGE_API_URL: Joi.string(),
         CALLER_NUMBER: Joi.string(),
         AWS_ACCESS_KEY: Joi.string(),
@@ -86,7 +93,7 @@ import { Schedule } from './products/entities/schedule.entity';
     CategoriesModule,
     ProductsModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
