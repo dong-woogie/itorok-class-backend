@@ -129,7 +129,7 @@ export class AuthService {
     await this.authTokens.save(authToken);
 
     const accessToken = await this.generateToken(
-      { userId: user.id },
+      { id: user.id },
       { expiresIn: '1h' },
     );
 

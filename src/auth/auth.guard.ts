@@ -65,7 +65,8 @@ export class AuthGuard implements CanActivate {
     }
 
     // correct action
-    const user = await this.users.findOne(decodedToken.id);
+    const user = await this.users.findOne({ where: { id: decodedToken.id } });
+
     gqlContext['user'] = user;
     return true;
   }

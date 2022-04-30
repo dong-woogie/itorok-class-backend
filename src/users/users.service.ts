@@ -195,9 +195,7 @@ export class UsersService {
         user,
       },
     });
-
-    await this.authTokens.remove([token]);
-
+    if (token) await this.authTokens.remove([token]);
     res.clearCookie(REFRESH_TOKEN);
     return true;
   }
