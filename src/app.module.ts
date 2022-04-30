@@ -17,6 +17,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { Product } from './products/entities/product.entity';
 import { Schedule } from './products/entities/schedule.entity';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { Schedule } from './products/entities/schedule.entity';
         BUCKET_NAME: Joi.string(),
       }),
     }),
-    GraphQLModule.forRoot({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       context: ({ req, res, connection }) => {
         if (req) {
@@ -60,8 +61,10 @@ import { Schedule } from './products/entities/schedule.entity';
           };
         }
       },
+      driver: ApolloDriver,
       installSubscriptionHandlers: true,
       cors: false,
+      playground: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -79,7 +82,7 @@ import { Schedule } from './products/entities/schedule.entity';
         Product,
         Schedule,
       ],
-      synchronize: true,
+      synchronize: Boolean(process.env.DB_SYNCHRONIZE),
       logging: true,
       keepConnectionAlive: true,
     }),
