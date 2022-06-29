@@ -36,4 +36,14 @@ export class CategoriesService {
 
     return { ok: true, category: newCategory };
   }
+
+  async removeAllCategory() {
+    try {
+      const cateogories = await this.categories.find();
+      await this.categories.remove(cateogories);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

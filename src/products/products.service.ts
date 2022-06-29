@@ -38,6 +38,7 @@ export class ProductsService {
       curriculum,
       minPerson,
       maxPerson,
+      price,
     } = createProductInput;
 
     const product = new Product();
@@ -58,8 +59,7 @@ export class ProductsService {
     product.curriculum = curriculum;
     product.minPerson = minPerson;
     product.maxPerson = maxPerson;
-
-    // product.price = price
+    product.price = price;
 
     product.mentor = user;
 

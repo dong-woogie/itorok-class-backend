@@ -208,6 +208,7 @@ export class ApiService {
       const s3 = this.getS3();
 
       const objectname = this.getObjectName(file.originalname);
+
       await s3
         .putObject({
           Body: file.buffer,

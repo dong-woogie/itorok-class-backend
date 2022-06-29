@@ -89,7 +89,7 @@ export class Product extends CoreEntity {
   curriculum: string;
 
   @Field((type) => Category)
-  @ManyToOne((type) => Category)
+  @ManyToOne((type) => Category, { onDelete: 'SET NULL' })
   category: Category;
 
   @Field((type) => Number)

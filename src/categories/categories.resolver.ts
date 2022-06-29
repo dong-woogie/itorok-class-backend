@@ -19,4 +19,9 @@ export class CategoriesResolver {
   createCategory(@Args('input') createCategoryInput: CreateCategoryInput) {
     return this.categoriesService.createCategory(createCategoryInput);
   }
+
+  @Mutation(() => Boolean)
+  removeAllCateogory() {
+    return this.categoriesService.removeAllCategory();
+  }
 }
